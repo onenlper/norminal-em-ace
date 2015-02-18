@@ -236,6 +236,12 @@ public class Context implements Serializable {
 			feas[id++] = 0;
 		}
 		
+		if(EMUtil.isAbbreviation(ant, anaphor) || EMUtil.isSamePerson(ant, anaphor)) {
+			feas[id++] = 1;
+		} else {
+			feas[id++] = 0;
+		}
+		
 //		if(subtype1!=null && subtype2!=null && subtype1.equals(subtype2)) {
 ////			System.out.println(subtype1 + " # " + subtype2);
 ////			System.out.println(ant.head + " # " + m.head);

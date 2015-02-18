@@ -798,11 +798,65 @@ public class EMUtil {
 		// can.startLeaf, can.endLeaf);
 		// TreeNode curTree = getNPTreeNode(cur, parseResults, cur.sentenceId,
 		// cur.startLeaf, cur.endLeaf);
-		if (can.headCharEnd + 1 == cur.headCharStart && cur.semClass.equals("per") && cur.mType==MentionType.proper) {
+		if (can.headCharEnd + 1 == cur.headCharStart && cur.NE.equalsIgnoreCase("person")
+				) {
 			return true;
 		} else {
 			return false;
 		}
+	}
+	
+	private static HashMap<String, Integer> abbreHash = null;
+	
+	public static boolean isAbbreviation(EntityMention antecedent, EntityMention em) {
+		String str1 = antecedent.extent;
+		String str2 = em.extent;
+		if (abbreHash == null) {
+			abbreHash = new HashMap<String, Integer>();
+			ArrayList<String> lines = Common.getLines("dict/abbreviation");
+			for (int i = 0; i < lines.size(); i++) {
+				String line = lines.get(i);
+				String tokens[] = line.split("\\s+");
+				for (String token : tokens) {
+					abbreHash.put(token, i);
+					if (token.endsWith("省") || token.endsWith("市")) {
+						abbreHash.put(token.substring(0, token.length() - 1), i);
+					}
+				}
+			}
+		}
+		if (abbreHash.containsKey(str1) && abbreHash.containsKey(str2)) {
+			return (abbreHash.get(str1).intValue() == abbreHash.get(str2).intValue());
+		} else {
+			String l = str1.length() < str2.length() ? str2 : str1;
+			String s = str1.length() >= str2.length() ? str2 : str1;
+			if (l.substring(0, l.length() - 1).equalsIgnoreCase(s)
+					&& (l.charAt(l.length() - 1) == '省' || l.charAt(l.length() - 1) == '市')) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
+	
+	public static boolean isSamePerson(EntityMention antecedent, EntityMention em) {
+		if ((em.NE.equalsIgnoreCase("PERSON")
+				&& antecedent.start == antecedent.end && antecedent.extent
+					.startsWith(em.head))
+				|| (antecedent.NE.equalsIgnoreCase("PERSON")
+						&& em.start == em.end && em.extent
+							.startsWith(antecedent.head))) {
+			return true;
+		}
+		if ((em.NE.equalsIgnoreCase("PERSON")
+				&& antecedent.start == antecedent.end && antecedent.extent
+					.endsWith(em.head))
+				|| (antecedent.NE.equalsIgnoreCase("PERSON")
+						&& em.start == em.end && em.extent
+							.endsWith(antecedent.head))) {
+			return true;
+		}
+		return false;
 	}
 	
 	public static double getP_C(EntityMention ant, EntityMention m, CoNLLPart part) {
@@ -815,6 +869,10 @@ public class EMUtil {
 		}
 		
 		if(EMUtil.isRoleAppositive(ant, m)) {
+			return 1;
+		}
+		
+		if(EMUtil.isAbbreviation(ant, m) || EMUtil.isSamePerson(ant, m)) {
 			return 1;
 		}
 
@@ -936,6 +994,13 @@ public class EMUtil {
 		m.endInS = endIdx;
 		m.sentenceID = sentence.getSentenceIdx();
 		m.s = sentence;
+		
+		StringBuilder sb = new StringBuilder();
+		for (int i = m.start; i <= m.end; i++) {
+			sb.append(part.getWord(i).word).append(" ");
+		}
+		m.extent = sb.toString().trim().toLowerCase().replaceAll("\\s+", "");
+		m.head = m.head.replaceAll("\\s+", "");
 
 		// System.out.println(sentence.getSyntaxTree().leaves.size() + "#" +
 		// sentence.getWords().size());
@@ -1086,6 +1151,14 @@ public class EMUtil {
 				}
 			}
 		}
+		
+		// assign ne
+		for (Element element : part.getNameEntities()) {
+			if (m.headCharEnd == element.end) {
+				m.NE = element.content;
+			}
+		}
+		
 		m.animacy = EMUtil.getAntAnimacy(m);
 		m.gender = EMUtil.getAntGender(m);
 		m.number = EMUtil.getAntNumber(m);

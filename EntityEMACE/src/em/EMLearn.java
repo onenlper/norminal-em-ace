@@ -221,6 +221,8 @@ public class EMLearn {
 			} else if ((ant.head.equals(rg.m.head)) 
 					|| EMUtil.isCopular(ant, rg.m, rg.part)
 					|| EMUtil.isRoleAppositive(ant, rg.m)
+					|| EMUtil.isAbbreviation(ant, rg.m) 
+					|| EMUtil.isSamePerson(ant, rg.m)
 					) {
 					goodEntries.add(entry);
 			} else {
