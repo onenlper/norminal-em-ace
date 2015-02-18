@@ -7,6 +7,13 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
+import model.EntityMention.Animacy;
+import model.EntityMention.Gender;
+import model.EntityMention.Grammatic;
+import model.EntityMention.MentionType;
+import model.EntityMention.Person;
+import model.EntityMention.PersonEng;
+import model.EntityMention.Number;
 
 import util.Common;
 
@@ -83,18 +90,18 @@ public class SVOStat implements Serializable{
 				addMap(svCounts, s + " " + v, count);
 				addMap(vCounts, v, count);
 				
-				EMUtil.Number num = EMUtil.getAntNumber(s);
+				Number num = EMUtil.getAntNumber(s);
 				addAttri(v, numberStat, num.ordinal(), count);
 				
-				EMUtil.Gender gen = EMUtil.getAntGender(s);
-				if(gen!=EMUtil.Gender.unknown) {
+				Gender gen = EMUtil.getAntGender(s);
+				if(gen!=Gender.unknown) {
 					addAttri(v, genderStat, gen.ordinal(), count);
 				}
-				EMUtil.Person per = EMUtil.getAntPerson(s);
+				Person per = EMUtil.getAntPerson(s);
 				addAttri(v, personStat, per.ordinal(), count);
 				
-				EMUtil.Animacy ani = EMUtil.getAntAnimacy(s);
-				if(ani!=EMUtil.Animacy.unknown) {
+				Animacy ani = EMUtil.getAntAnimacy(s);
+				if(ani!=Animacy.unknown) {
 					addAttri(v, animacyStat, ani.ordinal(), count);
 				}
 
@@ -109,12 +116,12 @@ public class SVOStat implements Serializable{
 					key = v + " " + o;
 					addAttri(key, numberStat2, num.ordinal(), count);
 					
-					if(gen!=EMUtil.Gender.unknown) {
+					if(gen!=Gender.unknown) {
 						addAttri(key, genderStat2, gen.ordinal(), count);
 					}
 					addAttri(key, personStat2, per.ordinal(), count);
 					
-					if(ani!=EMUtil.Animacy.unknown) {
+					if(ani!=Animacy.unknown) {
 						addAttri(key, animacyStat2, ani.ordinal(), count);
 					}
 				}

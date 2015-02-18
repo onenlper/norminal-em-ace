@@ -19,7 +19,13 @@ import model.CoNLL.CoNLLWord;
 import model.syntaxTree.MyTreeNode;
 import util.Common;
 import edu.stanford.nlp.classify.LinearClassifier;
-import em.EMUtil.Grammatic;
+import model.EntityMention.Animacy;
+import model.EntityMention.Gender;
+import model.EntityMention.Grammatic;
+import model.EntityMention.MentionType;
+import model.EntityMention.Person;
+import model.EntityMention.PersonEng;
+import model.EntityMention.Number;
 
 public class ApplyEMBaselines {
 

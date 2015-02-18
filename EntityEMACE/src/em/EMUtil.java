@@ -13,6 +13,13 @@ import model.Element;
 import model.Entity;
 import model.GraphNode;
 import model.EntityMention;
+import model.EntityMention.Animacy;
+import model.EntityMention.Gender;
+import model.EntityMention.Grammatic;
+import model.EntityMention.MentionType;
+import model.EntityMention.Person;
+import model.EntityMention.PersonEng;
+import model.EntityMention.Number;
 import model.CoNLL.CoNLLDocument;
 import model.CoNLL.CoNLLPart;
 import model.CoNLL.CoNLLSentence;
@@ -70,34 +77,6 @@ public class EMUtil {
 			put("它们", 5);
 		}
 	};
-
-	public static enum Person {
-		first, second, third
-	};
-
-	public static enum Number {
-		single, plural, fake
-	};
-
-	public static enum Gender {
-		male, female, neuter, unknown, fake
-	};
-
-	public static enum PersonEng {
-		I, YOU, HE, SHE, WE, THEY, IT, UNKNOWN, YOUS
-	}
-
-	public static enum Animacy {
-		animate, unanimate, unknown, fake
-	}
-
-	public static enum Grammatic {
-		subject, object, modifier, other
-	};
-
-	public static enum MentionType {
-		pronoun, proper, common, tmporal
-	}
 
 	public static String getSemantic(EntityMention m) {
 		if (true) {
@@ -232,9 +211,9 @@ public class EMUtil {
 		CoNLLDocument sysDoc = new CoNLLDocument(path);
 		HashMap<String, HashMap<String, String>> allSys = new HashMap<String, HashMap<String, String>>();
 		for (CoNLLPart part : sysDoc.getParts()) {
-			CoNLLPart goldPart = EMUtil.getGoldPart(part, "test");
-			HashSet<String> goldNEs = EMUtil.getGoldNEs(goldPart);
-			HashSet<String> goldPNs = EMUtil.getGoldPNs(goldPart);
+			CoNLLPart goldPart = getGoldPart(part, "test");
+			HashSet<String> goldNEs = getGoldNEs(goldPart);
+			HashSet<String> goldPNs = getGoldPNs(goldPart);
 
 			HashMap<String, String> sys = new HashMap<String, String>();
 			allSys.put(part.getPartName(), sys);
@@ -282,7 +261,7 @@ public class EMUtil {
 		return (short) idx;
 	}
 
-	public static EMUtil.Number getNumber(String pro) {
+	public static Number getNumber(String pro) {
 		if (singles.contains(pro)) {
 			return Number.single;
 		} else if (plurals.contains(pro)) {
@@ -293,7 +272,7 @@ public class EMUtil {
 		}
 	}
 
-	public static EMUtil.Gender getGender(String pro) {
+	public static Gender getGender(String pro) {
 		if (males.contains(pro)) {
 			return Gender.male;
 		} else if (females.contains(pro)) {
@@ -306,7 +285,7 @@ public class EMUtil {
 		}
 	}
 
-	public static EMUtil.Person getPerson(String pro) {
+	public static Person getPerson(String pro) {
 		if (firsts.contains(pro)) {
 			return Person.first;
 		} else if (seconds.contains(pro)) {
@@ -329,7 +308,7 @@ public class EMUtil {
 		}
 	}
 
-	public static EMUtil.Animacy getAnimacy(String pro) {
+	public static Animacy getAnimacy(String pro) {
 		if (animates.contains(pro)) {
 			return Animacy.animate;
 		} else if (unanimates.contains(pro)) {
@@ -381,7 +360,7 @@ public class EMUtil {
 				if ((!t.equals(m)) && t.end != -1) {
 					corefs.add(t);
 				}
-				if (EMUtil.pronouns.contains(t.extent)) {
+				if (pronouns.contains(t.extent)) {
 					represent = t;
 				}
 			}
@@ -411,15 +390,15 @@ public class EMUtil {
 				int[] animacys = new int[Animacy.values().length];
 				for (EntityMention t : corefs) {
 					// TODO
-					t.animacy = EMUtil.getAntAnimacy(t);
+					t.animacy = getAntAnimacy(t);
 					animacys[t.animacy.ordinal()]++;
 
-					t.gender = EMUtil.getAntGender(t);
+					t.gender = getAntGender(t);
 					genders[t.gender.ordinal()]++;
-					t.number = EMUtil.getAntNumber(t);
+					t.number = getAntNumber(t);
 					numbers[t.number.ordinal()]++;
 
-					t.person = EMUtil.getAntPerson(t.head);
+					t.person = getAntPerson(t.head);
 					if (part.getWord(m.start).speaker.equals(part
 							.getWord(t.start).speaker)) {
 						persons[t.person.ordinal()]++;
@@ -477,38 +456,38 @@ public class EMUtil {
 		}
 
 		// assign number, gender, person, animacy
-		if (EMUtil.singles.contains(m.head)) {
-			m.number = EMUtil.Number.single;
-		} else if (EMUtil.plurals.contains(m.head)) {
-			m.number = EMUtil.Number.plural;
+		if (singles.contains(m.head)) {
+			m.number = Number.single;
+		} else if (plurals.contains(m.head)) {
+			m.number = Number.plural;
 		} else {
 			Common.bangErrorPOS("");
 		}
 
-		if (EMUtil.males.contains(m.head)) {
-			m.gender = EMUtil.Gender.male;
-		} else if (EMUtil.females.contains(m.head)) {
-			m.gender = EMUtil.Gender.female;
-		} else if (EMUtil.neuters.contains(m.head)) {
-			m.gender = EMUtil.Gender.neuter;
+		if (males.contains(m.head)) {
+			m.gender = Gender.male;
+		} else if (females.contains(m.head)) {
+			m.gender = Gender.female;
+		} else if (neuters.contains(m.head)) {
+			m.gender = Gender.neuter;
 		} else {
 			Common.bangErrorPOS(m.head);
 		}
 
-		if (EMUtil.firsts.contains(m.head)) {
-			m.person = EMUtil.Person.first;
-		} else if (EMUtil.seconds.contains(m.head)) {
-			m.person = EMUtil.Person.second;
-		} else if (EMUtil.thirds.contains(m.head)) {
-			m.person = EMUtil.Person.third;
+		if (firsts.contains(m.head)) {
+			m.person = Person.first;
+		} else if (seconds.contains(m.head)) {
+			m.person = Person.second;
+		} else if (thirds.contains(m.head)) {
+			m.person = Person.third;
 		} else {
 			Common.bangErrorPOS(m.head);
 		}
 
-		if (EMUtil.animates.contains(m.head)) {
-			m.animacy = EMUtil.Animacy.animate;
-		} else if (EMUtil.unanimates.contains(m.head)) {
-			m.animacy = EMUtil.Animacy.unanimate;
+		if (animates.contains(m.head)) {
+			m.animacy = Animacy.animate;
+		} else if (unanimates.contains(m.head)) {
+			m.animacy = Animacy.unanimate;
 		} else {
 			Common.bangErrorPOS(m.head);
 		}
@@ -727,8 +706,8 @@ public class EMUtil {
 			.readFile2Map2("subTypes.all");
 
 	public static String getACESubType(EntityMention m, CoNLLPart part) {
-		String instance = EMUtil.getSemanticInstance(m, part);
-		String subtype = EMUtil.getACESubType(instance);
+		String instance = getSemanticInstance(m, part);
+		String subtype = getACESubType(instance);
 		if (subtype == null || subtype.equalsIgnoreCase("other")) {
 			if (m.NE.equals("PERSON")) {
 				if (m.number == Number.single) {
@@ -751,14 +730,14 @@ public class EMUtil {
 	}
 
 //	private static String getACEType(Mention m, CoNLLPart part) {
-//		String instance = EMUtil.getSemanticInstance(m, part);
+//		String instance = getSemanticInstance(m, part);
 //		String subtype = "";
 //		if (m.NE.equals("PERSON")) {
 //			subtype = "per";
 //		} else if (!m.NE.equals("OTHER")) {
 //			subtype = m.NE.toLowerCase();
 //		} else {
-//			subtype = EMUtil.getACEType(instance);
+//			subtype = getACEType(instance);
 //			if (subtype == null || subtype.equalsIgnoreCase("other")) {
 //				String sems[] = Common.getSemantic(m.head);
 //				String sem = "unknown";
@@ -773,8 +752,8 @@ public class EMUtil {
 //	}
 
 	private static String getACEType(EntityMention m, CoNLLPart part) {
-		String instance = EMUtil.getSemanticInstance(m, part);
-		String subtype = EMUtil.getACEType(instance);
+		String instance = getSemanticInstance(m, part);
+		String subtype = getACEType(instance);
 		// String subtype = semanticMap.get(m.head.replaceAll("\\s+", ""));
 		if (subtype == null || subtype.equalsIgnoreCase("other")) {
 			if (m.NE.equals("PERSON")) {
@@ -864,18 +843,30 @@ public class EMUtil {
 			return 0;
 		}
 
-		if(EMUtil.isCopular(ant, m, part)) {
+		if(isCopular(ant, m, part)) {
 			return 1;
 		}
 		
-		if(EMUtil.isRoleAppositive(ant, m)) {
+		if(isRoleAppositive(ant, m)) {
 			return 1;
 		}
 		
-		if(EMUtil.isAbbreviation(ant, m) || EMUtil.isSamePerson(ant, m)) {
+		if(isAbbreviation(ant, m) || isSamePerson(ant, m)) {
 			return 1;
 		}
 
+		if(!ant.semClass.equals(m.semClass)) {
+			return 0;
+		}
+		
+		if(!ant.subType.equals(m.subType)) {
+			return 0;
+		}
+		
+		if(true) {
+			return 1;
+		}
+		
 		if(ant.head.equals(m.head)) {
 			return 1;
 		} else if(true) {
@@ -887,14 +878,6 @@ public class EMUtil {
 			return 0;
 		}
 
-		if(!ant.semClass.equals(m.semClass)) {
-			return 0;
-		}
-		
-		if(!ant.subType.equals(m.subType)) {
-			return 0;
-		}
-		
 		String subtype1 = ant.semantic;
 		String subtype2 = m.subType;
 
@@ -910,15 +893,15 @@ public class EMUtil {
 		// // }
 		//
 		 if (m.gram == Grammatic.subject) {
-		 double mi1 = EMUtil.calMISubject(m, m);
-		 double mi2 = EMUtil.calMISubject(ant, m);
+		 double mi1 = calMISubject(m, m);
+		 double mi2 = calMISubject(ant, m);
 		 if (mi2 < 0 && mi2 < mi1) {
 		 return 0;
 		 }
 		 }
 		 if (m.gram == Grammatic.object) {
-		 double mi1 = EMUtil.calMIObject(m, m);
-		 double mi2 = EMUtil.calMIObject(ant, m);
+		 double mi1 = calMIObject(m, m);
+		 double mi2 = calMIObject(ant, m);
 		 if (mi2 < 0 && mi2 < mi1) {
 		 return 0;
 		 }
@@ -1088,16 +1071,16 @@ public class EMUtil {
 
 		if (head.parent.value.equals("NR") || head.parent.value.equals("NNP")
 				|| head.parent.value.equals("NNPS")) {
-			m.mType = EMUtil.MentionType.proper;
+			m.mType = MentionType.proper;
 		} else if (head.parent.value.equals("PN")
 				|| head.parent.value.equals("PRP")
 				|| head.parent.value.equals("PRP$")) {
-			m.mType = EMUtil.MentionType.pronoun;
+			m.mType = MentionType.pronoun;
 		} else if (head.parent.value.equals("NN")
 				|| head.parent.value.equals("NNS")) {
-			m.mType = EMUtil.MentionType.common;
+			m.mType = MentionType.common;
 		} else {
-			m.mType = EMUtil.MentionType.tmporal;
+			m.mType = MentionType.tmporal;
 		}
 		// check subject or object
 		boolean subject = false;
@@ -1121,7 +1104,7 @@ public class EMUtil {
 		if (haveNPAncestor) {
 			m.gram = Grammatic.modifier;
 		} else if (treeNode.parent == null) {
-			m.gram = EMUtil.Grammatic.other;
+			m.gram = Grammatic.other;
 		} else {
 			for (int i = treeNode.childIndex + 1; i < treeNode.parent.children
 					.size(); i++) {
@@ -1133,7 +1116,7 @@ public class EMUtil {
 				}
 			}
 			if (subject) {
-				m.gram = EMUtil.Grammatic.subject;
+				m.gram = Grammatic.subject;
 			} else {
 				boolean object = false;
 				if (treeNode.parent.value.equals("VP")) {
@@ -1147,7 +1130,7 @@ public class EMUtil {
 					}
 				}
 				if (object) {
-					m.gram = EMUtil.Grammatic.object;
+					m.gram = Grammatic.object;
 				}
 			}
 		}
@@ -1159,10 +1142,10 @@ public class EMUtil {
 			}
 		}
 		
-		m.animacy = EMUtil.getAntAnimacy(m);
-		m.gender = EMUtil.getAntGender(m);
-		m.number = EMUtil.getAntNumber(m);
-		m.semantic = EMUtil.getSemantic(m);
+		m.animacy = getAntAnimacy(m);
+		m.gender = getAntGender(m);
+		m.number = getAntNumber(m);
+		m.semantic = getSemantic(m);
 
 		MyTreeNode ip = head.getAncestors().get(0);
 		for (int i = head.getAncestors().size() - 1; i >= 0; i--) {
@@ -1299,7 +1282,7 @@ public class EMUtil {
 //		 return nounPhrases;
 //		 }
 
-		EMUtil.assignNE(nounPhrases, sentence.part.getNameEntities());
+		assignNE(nounPhrases, sentence.part.getNameEntities());
 
 		CoNLLPart part = sentence.part;
 		// TODO
@@ -1832,12 +1815,12 @@ public class EMUtil {
 		int male = 0;
 		int female = 0;
 		if (subMap != null) {
-			for (String malePronoun : EMUtil.males) {
+			for (String malePronoun : males) {
 				if (subMap.containsKey(malePronoun)) {
 					male += subMap.get(malePronoun);
 				}
 			}
-			for (String femalePronoun : EMUtil.females) {
+			for (String femalePronoun : females) {
 				if (subMap.containsKey(femalePronoun)) {
 					female += subMap.get(femalePronoun);
 				}
@@ -1869,12 +1852,12 @@ public class EMUtil {
 		int male = 0;
 		int female = 0;
 		if (subMap != null) {
-			for (String malePronoun : EMUtil.males) {
+			for (String malePronoun : males) {
 				if (subMap.containsKey(malePronoun)) {
 					male += subMap.get(malePronoun);
 				}
 			}
-			for (String femalePronoun : EMUtil.females) {
+			for (String femalePronoun : females) {
 				if (subMap.containsKey(femalePronoun)) {
 					female += subMap.get(femalePronoun);
 				}
@@ -1932,7 +1915,7 @@ public class EMUtil {
 						sb.append(lines.get(m).split("\\s+")[0]);
 					}
 
-					EMUtil.NEMap.put(sb.toString(), content);
+					NEMap.put(sb.toString(), content);
 					// System.out.println(sb.toString() + " " + content + " " +
 					// i + " " + (k-1));
 					if (predictNEs.containsKey(key)) {
@@ -1993,7 +1976,7 @@ public class EMUtil {
 				continue;
 			}
 
-			if (EMUtil.removeChars.contains(mention.head)) {
+			if (removeChars.contains(mention.head)) {
 				removes.add(mention);
 				continue;
 			}
@@ -2229,9 +2212,9 @@ public class EMUtil {
 
 		for (EntityMention z : zeroInGroup) {
 			ArrayList<ArrayList<CoNLLWord>> tmpCombinations = new ArrayList<ArrayList<CoNLLWord>>();
-			for (String op : EMUtil.pronouns) {
+			for (String op : pronouns) {
 				for (ArrayList<CoNLLWord> combination : combinations) {
-					ArrayList<CoNLLWord> newList = EMUtil.addZero(combination,
+					ArrayList<CoNLLWord> newList = addZero(combination,
 							z, op);
 					tmpCombinations.add(newList);
 				}
@@ -2252,7 +2235,7 @@ public class EMUtil {
 	public static ArrayList<EntityMention> getPronouns(ArrayList<EntityMention> cluster) {
 		ArrayList<EntityMention> pronouns = new ArrayList<EntityMention>();
 		for (EntityMention m : cluster) {
-			if (m.end != -1 && EMUtil.pronouns.contains(m.extent)) {
+			if (m.end != -1 && pronouns.contains(m.extent)) {
 				pronouns.add(m);
 			}
 		}
@@ -2262,7 +2245,7 @@ public class EMUtil {
 	public static ArrayList<EntityMention> getNotPronouns(ArrayList<EntityMention> cluster) {
 		ArrayList<EntityMention> notPronouns = new ArrayList<EntityMention>();
 		for (EntityMention m : cluster) {
-			if (m.end != -1 && !EMUtil.pronouns.contains(m.extent)) {
+			if (m.end != -1 && !pronouns.contains(m.extent)) {
 				notPronouns.add(m);
 			}
 		}
@@ -2384,12 +2367,12 @@ public class EMUtil {
 		int male = 0;
 		int female = 0;
 		if (subMap != null) {
-			for (String malePronoun : EMUtil.males) {
+			for (String malePronoun : males) {
 				if (subMap.containsKey(malePronoun)) {
 					male += subMap.get(malePronoun);
 				}
 			}
-			for (String femalePronoun : EMUtil.females) {
+			for (String femalePronoun : females) {
 				if (subMap.containsKey(femalePronoun)) {
 					female += subMap.get(femalePronoun);
 				}
@@ -2687,12 +2670,12 @@ public class EMUtil {
 		// "你", "我", "他", "她", "它", "你们", "我们", "他们", "她们", "它们"
 		double max = 0;
 		int win = -1;
-		for (int i = 0; i < EMUtil.pronounList.size(); i++) {
-			String pro = EMUtil.pronounList.get(i);
-			double per = pers[EMUtil.getPerson(pro).ordinal()];
-			double num = nums[EMUtil.getNumber(pro).ordinal()];
-			double gen = gens[EMUtil.getGender(pro).ordinal()];
-			double ani = anis[EMUtil.getAnimacy(pro).ordinal()];
+		for (int i = 0; i < pronounList.size(); i++) {
+			String pro = pronounList.get(i);
+			double per = pers[getPerson(pro).ordinal()];
+			double num = nums[getNumber(pro).ordinal()];
+			double gen = gens[getGender(pro).ordinal()];
+			double ani = anis[getAnimacy(pro).ordinal()];
 
 			double p = per + num + gen + ani;
 			if (p > max) {
@@ -2703,7 +2686,7 @@ public class EMUtil {
 		if (win == -1) {
 			return "他";
 		}
-		return EMUtil.pronounList.get(win);
+		return pronounList.get(win);
 	}
 
 	public static HashMap<String, String> getGoldNEs2(CoNLLPart goldPart) {
@@ -2795,12 +2778,12 @@ public class EMUtil {
 		}
 		String o = ant.head;
 		String pos = ant.s.getWord(ant.headInS).posTag;
-		String v = EMUtil.getFirstVerb(anaphor.V);
+		String v = getFirstVerb(anaphor.V);
 
 		String NE = ant.NE;
-		if (ant.NE.equals("OTHER") && EMUtil.NEMap != null
-				&& EMUtil.NEMap.containsKey(ant.head)) {
-			NE = EMUtil.NEMap.get(ant.head);
+		if (ant.NE.equals("OTHER") && NEMap != null
+				&& NEMap.containsKey(ant.head)) {
+			NE = NEMap.get(ant.head);
 		}
 
 		if (NE.equals("PERSON")) {
@@ -2844,12 +2827,12 @@ public class EMUtil {
 		}
 		String s = ant.head;
 		String pos = ant.s.getWord(ant.headInS).posTag;
-		String v = EMUtil.getFirstVerb(anaphor.V);
+		String v = getFirstVerb(anaphor.V);
 
 		String NE = ant.NE;
-		if (ant.NE.equals("OTHER") && EMUtil.NEMap != null
-				&& EMUtil.NEMap.containsKey(ant.head)) {
-			NE = EMUtil.NEMap.get(ant.head);
+		if (ant.NE.equals("OTHER") && NEMap != null
+				&& NEMap.containsKey(ant.head)) {
+			NE = NEMap.get(ant.head);
 		}
 
 		if (NE.equals("PERSON")) {
@@ -2932,7 +2915,7 @@ public class EMUtil {
 //		ArrayList<CoNLLWord> segWords = chiS.words;
 //		int chiSegStart = segWords.get(0).index;
 //
-//		String chiStr = EMUtil.listToString(segWords);
+//		String chiStr = listToString(segWords);
 //		ArrayList<SentForAlign[]> aligns = alignMap.get(docName);
 //		SentForAlign[] align = aligns.get(chiS.idInDoc);
 //		String engStr = align[1].getText();

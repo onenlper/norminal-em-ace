@@ -12,6 +12,13 @@ import java.util.HashSet;
 import model.Element;
 import model.Entity;
 import model.EntityMention;
+import model.EntityMention.Animacy;
+import model.EntityMention.Gender;
+import model.EntityMention.Grammatic;
+import model.EntityMention.MentionType;
+import model.EntityMention.Person;
+import model.EntityMention.PersonEng;
+import model.EntityMention.Number;
 import model.CoNLL.CoNLLDocument;
 import model.CoNLL.CoNLLPart;
 import model.CoNLL.CoNLLSentence;
@@ -54,8 +61,8 @@ public class EMLearn {
 	public static void init() {
 		// static HashMap<Context, Double> p_context_ = new HashMap<Context,
 		// Double>();
-		numberP = new Parameter(1.0 / ((double) EMUtil.Number.values().length));
-		genderP = new Parameter(1.0 / ((double) EMUtil.Gender.values().length));
+		numberP = new Parameter(1.0 / ((double) Number.values().length));
+		genderP = new Parameter(1.0 / ((double) Gender.values().length));
 		semanticP = new Parameter(1.0 / 25318.0);
 
 		// semanticP = new Parameter(1.0/5254.0);
@@ -65,7 +72,7 @@ public class EMLearn {
 		grammaticP = new Parameter(1.0 / 4.0);
 
 		animacyP = new Parameter(
-				1.0 / ((double) EMUtil.Animacy.values().length));
+				1.0 / ((double) Animacy.values().length));
 
 		contextPrior = new HashMap<String, Double>();
 		contextOverall = new HashMap<String, Double>();

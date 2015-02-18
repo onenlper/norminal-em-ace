@@ -205,7 +205,7 @@ public class Context implements Serializable {
 		
 		int id = 0;
 		int[] feas = new int[10];
-//		feas[id++] = getMentionDiss(mentionDis);
+		feas[id++] = getMentionDiss(mentionDis);
 		if(ant.isFake) {
 //			feas[id++] = -anaphor.head.hashCode();
 //			return getContext(feas);
@@ -215,10 +215,10 @@ public class Context implements Serializable {
 		// feas[id++] = getIsFake(ant, anaphor, part);
 		// feas[id++] = getHasSameHead(allCands, anaphor, part);
 
-//		feas[id++] = getDistance(ant, anaphor, part); //
-//		feas[id++] = isExactMatch(ant, anaphor, part); // 2
+		feas[id++] = getDistance(ant, anaphor, part); //
+		feas[id++] = isExactMatch(ant, anaphor, part); // 2
 		feas[id++] = headMatch(ant, anaphor, part); // 2
-//		feas[id++] = isSamePredicate(ant, anaphor, part);
+		feas[id++] = isSamePredicate(ant, anaphor, part);
 		
 		
 		if(EMUtil.isCopular(ant, anaphor, part)) {
@@ -612,17 +612,17 @@ public class Context implements Serializable {
 	}
 
 	private static short getMentionDiss(int diss) {
-		if(diss==0) {
-			return 0;
-		} else {
-			return 1;
-		}
-		
-//		if(diss>5) {
-//			return 5;
+//		if(diss==0) {
+//			return 0;
 //		} else {
-//			return (short) diss;
+//			return 1;
 //		}
+		
+		if(diss>5) {
+			return 5;
+		} else {
+			return (short) diss;
+		}
 //		return (short) diss;
 	}
 
