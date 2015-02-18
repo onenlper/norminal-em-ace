@@ -368,6 +368,7 @@ public class ApplyEM {
 				p2nd *= 1 * p_sem;
 				double p = p2nd;
 				probs[i] = p;
+				
 				if (p > maxP && p != 0) {
 					antecedent = cand;
 					maxP = p;
