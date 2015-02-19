@@ -16,13 +16,11 @@ public class ResolveGroup implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-//	String pronoun;
-	
-	short pronoun;
+	String pronoun;
 
 	ArrayList<Entry> entries;
 	
-	public ResolveGroup(short pro) {
+	public ResolveGroup(String pro) {
 		this.pronoun = pro;
 		this.entries = new ArrayList<Entry>();
 	}

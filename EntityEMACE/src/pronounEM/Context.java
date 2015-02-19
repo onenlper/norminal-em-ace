@@ -163,29 +163,29 @@ public class Context implements Serializable {
                 }
 
                 short proNP = 0;
-                if (pronoun.V.getFirstXAncestor("NP") != null) {
-                        proNP = 1;
-                }
+//                if (pronoun.V.getFirstXAncestor("NP") != null) {
+//                        proNP = 1;
+//                }
 
                 short proVP = 0;
-                if (pronoun.V.getFirstXAncestor("VP") != null) {
-                        proVP = 1;
-                }
+//                if (pronoun.V.getFirstXAncestor("VP") != null) {
+//                        proVP = 1;
+//                }
 
-                short NPClause = getClauseType(ant.NP, antS.syntaxTree.root);
-                short VPClause = getClauseType(pronoun.V, pronounS.syntaxTree.root);
+//                short NPClause = getClauseType(ant.NP, antS.syntaxTree.root);
+//                short VPClause = getClauseType(pronoun.V, pronounS.syntaxTree.root);
 
                 short sameVerb = 0;
-                if (ant.gram == Grammatic.subject && ant.V != null
-                                && pronoun.V != null) {
-                        String antV = EMUtil.getFirstVerb(ant.V);
-                        String proV = EMUtil.getFirstVerb(pronoun.V);
-                        if (antV.equals(proV)) {
-                                if (!antV.equals("是") && !proV.equals("要") && !proV.equals("会")) {
-                                        sameVerb = 1;
-                                }
-                        }
-                }
+//                if (ant.gram == Grammatic.subject && ant.V != null
+//                                && pronoun.V != null) {
+//                        String antV = EMUtil.getFirstVerb(ant.V);
+//                        String proV = EMUtil.getFirstVerb(pronoun.V);
+//                        if (antV.equals(proV)) {
+//                                if (!antV.equals("是") && !proV.equals("要") && !proV.equals("会")) {
+//                                        sameVerb = 1;
+//                                }
+//                        }
+//                }
                 // maximum 18 features because of the restriction of Long
                 feas[15] = senDis;
 
@@ -286,8 +286,8 @@ public class Context implements Serializable {
         }
 
         public static double calMI(EntityMention ant, EntityMention pronoun) {
-//               if(true)
-//               return 1;
+               if(true)
+               return 1;
                 if (svoStat == null) {
                         long start = System.currentTimeMillis();
                         ObjectInputStream modelInput;

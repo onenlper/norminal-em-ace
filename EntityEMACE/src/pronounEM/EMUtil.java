@@ -41,50 +41,45 @@ import edu.stanford.nlp.ling.Datum;
 		public static HashSet<String> location = Common
 				.readFile2Set("location_suffix");
 	
-		public static HashSet<String> pronouns = new HashSet<String>(Arrays.asList(
-				"你", "我", "他", "她", "它", "你们", "我们", "他们", "她们", "它们"
-		// , "这", "这里", "那", "那里"
-				));
-	
 		public static ArrayList<String> engPronounList = new ArrayList<String>(
 				Arrays.asList("you", "i", "he", "she", "it", "we", "they"));
 	
 		public static HashSet<String> engPronouns = new HashSet<String>(
 				Arrays.asList("you", "i", "he", "she", "it", "we", "they"));
 	
-		public static HashMap<String, Integer> pronounArr = new HashMap<String, Integer>() {
-			/**
-					 * 
-					 */
-			public static final long serialVersionUID = 1L;
-			{
-				put("你", 1);
-				put("我", 2);
-				put("他", 3);
-				put("她", 4);
-				put("它", 5);
-				put("你们", 1);
-				put("我们", 2);
-				put("他们", 3);
-				put("她们", 4);
-				put("它们", 5);
-			}
-		};
+//		public static HashMap<String, Integer> pronounArr = new HashMap<String, Integer>() {
+//			/**
+//					 * 
+//					 */
+//			public static final long serialVersionUID = 1L;
+//			{
+//				put("你", 1);
+//				put("我", 2);
+//				put("他", 3);
+//				put("她", 4);
+//				put("它", 5);
+//				put("你们", 1);
+//				put("我们", 2);
+//				put("他们", 3);
+//				put("她们", 4);
+//				put("它们", 5);
+//			}
+//		};
 	
 		public static HashSet<String> firsts = new HashSet<String>(Arrays.asList(
-				"我", "我们"));
+				"我", "我们", "自己", "俺"));
 	
 		public static HashSet<String> seconds = new HashSet<String>(Arrays.asList(
-				"你", "你们"));
+				"你", "你们", "您"));
 	
 		public static HashSet<String> thirds = new HashSet<String>(Arrays.asList(
-				"他", "她", "它", "他们", "她们", "它们"));
+				"他", "她", "它", "他们", "她们", "它们", "其", "谁", "双方", "那里", "大家", "这里", "这", "那儿"));
 	
 		public static HashSet<String> singles = new HashSet<String>(Arrays.asList(
-				"你", "我", "他", "她", "它"));
+				"你", "我", "他", "她", "它", "其", "谁", "自己", "那里", "俺", "您", "这里", "这", "那儿"));
 	
 		public static HashSet<String> plurals = new HashSet<String>(Arrays.asList(
-				"你们", "我们", "他们", "她们", "它们"));
+				"你们", "我们", "他们", "她们", "它们", "双方", "大家"));
 	
 		public static HashSet<String> males = new HashSet<String>(Arrays.asList(
 				"他", "他们"));
@@ -93,21 +88,26 @@ import edu.stanford.nlp.ling.Datum;
 				"她", "她们"));
 	
 		public static HashSet<String> neuters = new HashSet<String>(Arrays.asList(
-				"它", "它们", "你", "我", "我们", "你们"));
+				"它", "它们", "你", "我", "我们", "你们", "其", "谁", "双方", "自己", "那里", "俺", "大家", "您", "这里", "这", "那儿"));
 	
 		public static HashSet<String> animates = new HashSet<String>(Arrays.asList(
-				"你", "我", "他", "她", "你们", "我们", "他们", "她们"));
+				"你", "我", "他", "她", "你们", "我们", "他们", "她们", "其", "谁", "双方", "自己", "俺", "大家", "您"));
 	
 		public static HashSet<String> unanimates = new HashSet<String>(
-				Arrays.asList("它", "它们"));
+				Arrays.asList("它", "它们", "那里", "这里", "这", "那儿"));
 	
 		public final static Set<String> removeChars = new HashSet<String>(
 				Arrays.asList(new String[] { "什么的", "哪", "什么", "谁", "啥", "哪儿",
 						"哪里", "人们", "年", "原因", "啥时", "问题", "情况", "未来", "战争", "人",
 						"时候", "可能" }));
 	
-		public static ArrayList<String> pronounList = new ArrayList<String>(
-				Arrays.asList("你", "我", "他", "她", "它", "你们", "我们", "他们", "她们", "它们"));
+		public static HashSet<String> pronouns = new HashSet<String>(Arrays.asList(
+				"你", "我", "他", "她", "你们", "我们", "他们", "她们", "其", "谁", "双方", "自己", "俺", "大家", "您",
+				"它", "它们", "那里", "这里", "这", "那儿"
+				));
+		
+//		public static ArrayList<String> pronounList = new ArrayList<String>(
+//				Arrays.asList("你", "我", "他", "她", "它", "你们", "我们", "他们", "她们", "它们"));
 	
 		public static void addEmptyCategoryNode(EntityMention zero) {
 			MyTreeNode V = zero.V;
@@ -139,10 +139,10 @@ import edu.stanford.nlp.ling.Datum;
 			return sMap;
 		}
 	
-		public static short getProIdx(String extent) {
-			int idx = pronounList.indexOf(extent);
-			return (short) idx;
-		}
+//		public static short getProIdx(String extent) {
+//			int idx = pronounList.indexOf(extent);
+//			return (short) idx;
+//		}
 	
 		public static Number getNumber(String pro) {
 			if (singles.contains(pro)) {
@@ -344,7 +344,9 @@ import edu.stanford.nlp.ling.Datum;
 			} else if (plurals.contains(m.head)) {
 				m.number = Number.plural;
 			} else {
-				Common.bangErrorPOS("");
+				System.out.println(m.s.getText());
+				System.out.println(m.head);
+//				Common.bangErrorPOS("");
 			}
 	
 			if (males.contains(m.head)) {
@@ -354,7 +356,8 @@ import edu.stanford.nlp.ling.Datum;
 			} else if (neuters.contains(m.head)) {
 				m.gender = Gender.neuter;
 			} else {
-				Common.bangErrorPOS(m.head);
+				System.out.println(m.head);
+//				Common.bangErrorPOS(m.head);
 			}
 	
 			if (firsts.contains(m.head)) {
@@ -364,7 +367,8 @@ import edu.stanford.nlp.ling.Datum;
 			} else if (thirds.contains(m.head)) {
 				m.person = Person.third;
 			} else {
-				Common.bangErrorPOS(m.head);
+				System.out.println(m.head);
+//				Common.bangErrorPOS(m.head);
 			}
 	
 			if (animates.contains(m.head)) {
@@ -372,7 +376,8 @@ import edu.stanford.nlp.ling.Datum;
 			} else if (unanimates.contains(m.head)) {
 				m.animacy = Animacy.unanimate;
 			} else {
-				Common.bangErrorPOS(m.head);
+				System.out.println(m.head);
+//				Common.bangErrorPOS(m.head);
 			}
 		}
 	
@@ -1974,28 +1979,28 @@ import edu.stanford.nlp.ling.Datum;
 			return null;
 		}
 		
-		public static String decideOP(double[] pers, double[] nums, double[] gens, double[] anis) {
-	//		"你", "我", "他", "她", "它", "你们", "我们", "他们", "她们", "它们"
-			double max = 0;
-			int win = -1;
-			for(int i=0;i<pronounList.size();i++) {
-				String pro = pronounList.get(i);
-				double per = pers[getPerson(pro).ordinal()];
-				double num = nums[getNumber(pro).ordinal()];
-				double gen = gens[getGender(pro).ordinal()];
-				double ani = anis[getAnimacy(pro).ordinal()];
-				
-				double p = per + num + gen + ani;
-				if(p>max) {
-					max = p;
-					win = i;
-				}
-			}
-			if(win==-1) {
-				return "他";
-			}
-			return pronounList.get(win);
-		}
+//		public static String decideOP(double[] pers, double[] nums, double[] gens, double[] anis) {
+//	//		"你", "我", "他", "她", "它", "你们", "我们", "他们", "她们", "它们"
+//			double max = 0;
+//			int win = -1;
+//			for(int i=0;i<pronounList.size();i++) {
+//				String pro = pronounList.get(i);
+//				double per = pers[getPerson(pro).ordinal()];
+//				double num = nums[getNumber(pro).ordinal()];
+//				double gen = gens[getGender(pro).ordinal()];
+//				double ani = anis[getAnimacy(pro).ordinal()];
+//				
+//				double p = per + num + gen + ani;
+//				if(p>max) {
+//					max = p;
+//					win = i;
+//				}
+//			}
+//			if(win==-1) {
+//				return "他";
+//			}
+//			return pronounList.get(win);
+//		}
 	
 		public static void main(String args[]) {
 			// loadMeassure();
