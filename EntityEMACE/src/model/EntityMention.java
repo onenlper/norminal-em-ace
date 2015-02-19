@@ -12,14 +12,41 @@ import model.CoNLL.CoNLLSentence;
 import model.syntaxTree.MyTreeNode;
 //import align.DocumentMap.Unit;
 import em.EMUtil;
-import em.EMUtil.Grammatic;
-import em.EMUtil.MentionType;
 
 public class EntityMention implements Comparable<EntityMention>, Serializable {
 
 	/**
          *
          */
+	
+	public static enum Person {
+		first, second, third
+	};
+
+	public static enum Number {
+		single, plural, fake
+	};
+
+	public static enum Gender {
+		male, female, neuter, unknown, fake
+	};
+
+	public static enum PersonEng {
+		I, YOU, HE, SHE, WE, THEY, IT, UNKNOWN, YOUS
+	}
+
+	public static enum Animacy {
+		animate, unanimate, unknown, fake
+	}
+
+	public static enum Grammatic {
+		subject, object, modifier, other
+	};
+
+	public static enum MentionType {
+		pronoun, proper, common, tmporal
+	}
+	
 	public static boolean ace = true; 
 	
 	public int headStart=-1;
@@ -145,15 +172,15 @@ public class EntityMention implements Comparable<EntityMention>, Serializable {
 
 	public int headID;
 
-	public EMUtil.Grammatic gram = Grammatic.other;
-	public EMUtil.MentionType mType;
+	public Grammatic gram = Grammatic.other;
+	public MentionType mType;
 
-	public EMUtil.Number number;
-	public EMUtil.Gender gender;
-	public EMUtil.Person person;
-	public EMUtil.Animacy animacy;
+	public Number number;
+	public Gender gender;
+	public Person person;
+	public Animacy animacy;
 
-	public EMUtil.PersonEng personEng;
+	public PersonEng personEng;
 
 	public MyTreeNode V;
 

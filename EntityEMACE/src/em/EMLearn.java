@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import pronounEM.EMPronounLearn;
+
 import model.Element;
 import model.Entity;
 import model.EntityMention;
@@ -119,10 +121,7 @@ public class EMLearn {
 	
 	@SuppressWarnings("unused")
 	public static ArrayList<ResolveGroup> extractGroups(CoNLLPart part, String docName) {
-
-		// CoNLLPart goldPart = EMUtil.getGoldPart(part, "train");
 		CoNLLPart goldPart = part;
-		HashSet<String> goldNEs = EMUtil.getGoldNEs(goldPart);
 		HashSet<String> goldPNs = EMUtil.getGoldPNs(goldPart);
 
 		for(Entity e : part.getChains()) {
@@ -136,8 +135,6 @@ public class EMLearn {
 			CoNLLSentence s = part.getCoNLLSentences().get(i);
 			
 			s.mentions = extractMention(part, s);
-//			EMUtil.alignMentions(s, s.mentions, docName);
-			
 			EMUtil.assignNE(s.mentions, part.getNameEntities());
 
 			ArrayList<EntityMention> precedMs = new ArrayList<EntityMention>();
@@ -158,12 +155,11 @@ public class EMLearn {
 				if (goldPNs.contains(m.toName())) {
 					continue;
 				}
-				if(goldNEs.contains(m.toName())
-//						|| goldNEs.contains(m.end + "," + m.end)
-						) {
-					continue;
-				}
-				
+//				if(goldNEs.contains(m.toName())
+////						|| goldNEs.contains(m.end + "," + m.end)
+//						) {
+//					continue;
+//				}
 				qid++;
 
 				ArrayList<EntityMention> ants = new ArrayList<EntityMention>();
@@ -362,7 +358,7 @@ public class EMLearn {
 	public static HashMap<String, HashSet<String>> chainMaps = new HashMap<String, HashSet<String>>();
 
 	public static void estep(ArrayList<ResolveGroup> groups) {
-		System.out.println("estep starts:");
+//		System.out.println("estep starts:");
 		long t1 = System.currentTimeMillis();
 		chainMaps.clear();
 		contextPrior.clear();
@@ -453,11 +449,11 @@ public class EMLearn {
 				chainMaps.put(rg.anaphorName, corefs);
 			}
 		}
-		System.out.println(System.currentTimeMillis() - t1);
+//		System.out.println(System.currentTimeMillis() - t1);
 	}
 
 	public static void mstep(ArrayList<ResolveGroup> groups) {
-		System.out.println("mstep starts:");
+//		System.out.println("mstep starts:");
 		long t1 = System.currentTimeMillis();
 		genderP.resetCounts();
 		numberP.resetCounts();
@@ -506,7 +502,7 @@ public class EMLearn {
 					/ (2.0 * EMUtil.alpha + contextPrior.get(key));
 			contextVals.put(key, p_context);
 		}
-		System.out.println(System.currentTimeMillis() - t1);
+//		System.out.println(System.currentTimeMillis() - t1);
 	}
 
 	public static void main(String args[]) throws Exception {
@@ -574,6 +570,9 @@ public class EMLearn {
 		// System.out.println(EMUtil.missed);
 		System.out.println(EMUtil.missed.size());
 
+		EMPronounLearn.run();
+		
+		
 		ApplyEM.run(Util.part);
 //		ApplyEM.run("nw");
 //		ApplyEM.run("mz");

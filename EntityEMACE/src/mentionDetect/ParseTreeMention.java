@@ -13,11 +13,13 @@ import model.syntaxTree.MyTree;
 import model.syntaxTree.MyTreeNode;
 import util.Common;
 import dict.EnDictionary;
-import em.EMUtil.Animacy;
-import em.EMUtil.Gender;
-import em.EMUtil.MentionType;
-import em.EMUtil.Number;
-import em.EMUtil.PersonEng;
+import model.EntityMention.Animacy;
+import model.EntityMention.Gender;
+import model.EntityMention.Grammatic;
+import model.EntityMention.MentionType;
+import model.EntityMention.Person;
+import model.EntityMention.PersonEng;
+import model.EntityMention.Number;
 
 public class ParseTreeMention extends MentionDetect {
 
