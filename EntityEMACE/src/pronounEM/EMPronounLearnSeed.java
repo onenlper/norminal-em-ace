@@ -24,8 +24,6 @@ import util.Common;
 import util.Util;
 import ace.ACECorefCommon;
 import ace.reader.ACEReader;
-import em.EMLearnSeed;
-import em.EMUtil;
 
 public class EMPronounLearnSeed {
 
@@ -40,6 +38,12 @@ public class EMPronounLearnSeed {
 	static HashMap<String, Double> fracContextCount;
 
 	static int count = 0;
+	
+	static ArrayList<HashMap<String, Double>> multiFracContextsCountl0 = new ArrayList<HashMap<String, Double>>();
+	static ArrayList<HashMap<String, Double>> multiFracContextsCountl1 = new ArrayList<HashMap<String, Double>>();
+
+	static ArrayList<HashMap<String, Double>> multiFracContextsProbl0 = new ArrayList<HashMap<String, Double>>();
+	static ArrayList<HashMap<String, Double>> multiFracContextsProbl1 = new ArrayList<HashMap<String, Double>>();
 
 	public static void init() {
 		numberP = new Parameter(1.0 / ((double) Number.values().length));
@@ -48,6 +52,13 @@ public class EMPronounLearnSeed {
 		personQP = new Parameter(1.0 / ((double) Person.values().length));
 		animacyP = new Parameter(1.0 / ((double) Animacy.values().length));
 
+		for (int i = 0; i < Context.getSubContext().size(); i++) {
+			multiFracContextsCountl0.add(new HashMap<String, Double>());
+			multiFracContextsCountl1.add(new HashMap<String, Double>());
+			multiFracContextsProbl0.add(new HashMap<String, Double>());
+			multiFracContextsProbl1.add(new HashMap<String, Double>());
+		}
+		
 		contextPrior = new HashMap<String, Double>();
 		contextOverall = new HashMap<String, Double>();
 		fracContextCount = new HashMap<String, Double>();
@@ -166,13 +177,19 @@ public class EMPronounLearnSeed {
 		}
 		return groups;
 	}
+	
+	static double countl0 = 0;
+	static double countl1 = 0;
+
+	static double pl0 = 0;
+	static double pl1 = 0;
 
 	private static void extractCoNLL(ArrayList<ResolveGroup> groups) {
 		ArrayList<String> lines = Common.getLines("/users/yzcchen/chen3/eventBilingual/BilingualEvent/src/ACE_Chinese_train"
 				+ Util.part);
 		int docNo = 0;
 
-		HashMap<String, ArrayList<EntityMention>> allEntityMentions = EMLearnSeed
+		HashMap<String, ArrayList<EntityMention>> allEntityMentions = em.EMLearnSeed
 				.loadSVMResult("6");
 
 		ArrayList<String> activeLines = Common.getLines("/users/yzcchen/chen3/eventBilingual/BilingualEvent/src/ACE_Chinese_train6");
@@ -212,7 +229,7 @@ public class EMPronounLearnSeed {
 					m.head = part.rawText.substring(m.headCharStart,
 							m.headCharEnd + 1);
 					ACECorefCommon.assingStartEnd(m, part);
-					EMUtil.setMentionAttri(m, part);
+					em.EMUtil.setMentionAttri(m, part);
 				}
 				if(annotated.contains(line)) {
 					annotatedDoc += 1;
@@ -277,6 +294,28 @@ public class EMPronounLearnSeed {
 					// p_context = 1.0 / 2592.0;
 					p_context = 1.0 / 2;
 				}
+				double p_context_l1 = pl1;
+				double p_context_l0 = pl0;
+
+//				for (int i = 0; i < Context.getSubContext().size(); i++) {
+//					String key = context.getKey(i);
+//					if (key.equals("-")) {
+//						System.out.println(context.toString());
+//						Common.bangErrorPOS("!!!");
+//					}
+//					if (multiFracContextsProbl1.get(i).containsKey(key)) {
+//						p_context_l1 *= multiFracContextsProbl1.get(i).get(key);
+//					} else {
+//						p_context_l1 *= 1.0 / Context.normConstant.get(i);
+//					}
+//
+//					if (multiFracContextsProbl0.get(i).containsKey(key)) {
+//						p_context_l0 *= multiFracContextsProbl0.get(i).get(key);
+//					} else {
+//						p_context_l0 *= 1.0 / Context.normConstant.get(i);
+//					}
+//				}
+//				p_context = p_context_l1 / (p_context_l1 + p_context_l0);
 
 				entry.p = 1 * p_person * p_number * p_gender * p_animacy
 						* p_context * 1;
@@ -305,6 +344,13 @@ public class EMPronounLearnSeed {
 		personP.resetCounts();
 		personQP.resetCounts();
 		fracContextCount.clear();
+		
+		for (int i = 0; i < multiFracContextsCountl1.size(); i++) {
+			multiFracContextsCountl0.get(i).clear();
+			multiFracContextsCountl1.get(i).clear();
+			multiFracContextsProbl0.get(i).clear();
+			multiFracContextsProbl1.get(i).clear();
+		}
 
 		for (ResolveGroup group : groups) {
 			String pronoun = group.pronoun;
@@ -335,8 +381,56 @@ public class EMPronounLearnSeed {
 					fracContextCount.put(context.toString(), d.doubleValue()
 							+ p);
 				}
+				
+				for (int i = 0; i < Context.getSubContext().size(); i++) {
+					int ps[] = Context.getSubContext().get(i);
+					String key = context.getKey(i);
+					double l1 = p;
+					double l0 = 1 - p;
+
+					Double cl0 = multiFracContextsCountl0.get(i).get(key);
+					if (cl0 == null) {
+						multiFracContextsCountl0.get(i).put(key, l0);
+					} else {
+						multiFracContextsCountl0.get(i).put(key,
+								l0 + cl0.doubleValue());
+					}
+
+					Double cl1 = multiFracContextsCountl1.get(i).get(key);
+					if (cl1 == null) {
+						multiFracContextsCountl1.get(i).put(key, l1);
+					} else {
+						multiFracContextsCountl1.get(i).put(key,
+								l1 + cl1.doubleValue());
+					}
+				}
+				
 			}
 		}
+		
+		for (int i = 0; i < Context.getSubContext().size(); i++) {
+
+			for (String key : multiFracContextsCountl1.get(i).keySet()) {
+
+				double contextcountl0 = 1;
+				if (multiFracContextsCountl0.get(i).containsKey(key)) {
+					contextcountl0 += multiFracContextsCountl0.get(i).get(key);
+				}
+				double pcountl0 = contextcountl0
+						/ (countl0 + Context.normConstant.get(i));
+
+				double contextcountl1 = 1;
+				if (multiFracContextsCountl1.get(i).containsKey(key)) {
+					contextcountl1 += multiFracContextsCountl1.get(i).get(key);
+				}
+				double pcountl1 = contextcountl1
+						/ (countl1 + Context.normConstant.get(i));
+
+				multiFracContextsProbl0.get(i).put(key, pcountl0);
+				multiFracContextsProbl1.get(i).put(key, pcountl1);
+			}
+		}
+		
 		genderP.setVals();
 		numberP.setVals();
 		animacyP.setVals();
@@ -395,10 +489,16 @@ public class EMPronounLearnSeed {
 		modelOut.writeObject(personP);
 		modelOut.writeObject(personQP);
 
+		modelOut.writeObject(multiFracContextsProbl0);
+		modelOut.writeObject(multiFracContextsProbl1);
+		modelOut.writeObject(pl0);
+		modelOut.writeObject(pl1);
+		
 		modelOut.writeObject(fracContextCount);
 		modelOut.writeObject(contextPrior);
 		modelOut.writeObject(Context.ss);
 		modelOut.writeObject(Context.vs);
+		
 		modelOut.close();
 
 		// ApplyPronounEM.run(Util.part);

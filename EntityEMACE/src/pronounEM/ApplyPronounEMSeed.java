@@ -48,6 +48,12 @@ public class ApplyPronounEMSeed {
 	HashMap<Integer, HashSet<Integer>> subSpace;
 	HashMap<String, Double> fracContextCount;
 
+	static ArrayList<HashMap<String, Double>> multiFracContextsProbl0;
+	static ArrayList<HashMap<String, Double>> multiFracContextsProbl1;
+
+	static double pl0 = 0;
+	static double pl1 = 0;
+	
 	@SuppressWarnings("unchecked")
 	public ApplyPronounEMSeed(String folder) {
 		this.folder = folder;
@@ -59,10 +65,17 @@ public class ApplyPronounEMSeed {
 			animacyP = (Parameter) modelInput.readObject();
 			personP = (Parameter) modelInput.readObject();
 			personQP = (Parameter) modelInput.readObject();
+			
+			multiFracContextsProbl0 = (ArrayList<HashMap<String, Double>>) modelInput
+					.readObject();
+			multiFracContextsProbl1 = (ArrayList<HashMap<String, Double>>) modelInput
+					.readObject();
+			pl0 = (Double) modelInput.readObject();
+			pl1 = (Double) modelInput.readObject();
+			
 			fracContextCount = (HashMap<String, Double>) modelInput
 					.readObject();
 			contextPrior = (HashMap<String, Double>) modelInput.readObject();
-
 			Context.ss = (HashSet<String>) modelInput.readObject();
 			Context.vs = (HashSet<String>) modelInput.readObject();
 			modelInput.close();
@@ -237,6 +250,26 @@ public class ApplyPronounEMSeed {
 				} else {
 					p_context = 1.0 / 2.0;
 				}
+				
+//				double p_context_l1 = pl1;
+//				double p_context_l0 = pl0;
+//				for (int g = 0; g < Context.getSubContext().size(); g++) {
+//					int pos[] = Context.getSubContext().get(g);
+//					String key = context.getKey(g);
+//					if (multiFracContextsProbl1.get(g).containsKey(key)) {
+//						p_context_l1 *= multiFracContextsProbl1.get(g).get(key);
+//					} else {
+//						p_context_l1 *= Context.normConstant.get(g);
+//					}
+//
+//					if (multiFracContextsProbl0.get(g).containsKey(key)) {
+//						p_context_l0 *= multiFracContextsProbl0.get(g).get(key);
+//					} else {
+//						p_context_l0 *= Context.normConstant.get(g);
+//					}
+//				}
+//
+//				p_context = p_context_l1 / (p_context_l1 + p_context_l0);
 
 				double p2nd = p_person * p_number * p_gender * p_animacy
 						* p_context * 1;
