@@ -53,6 +53,12 @@ public class ApplyEMSeed {
 
 	LinearClassifier<String, String> classifier;
 
+	static ArrayList<HashMap<String, Double>> multiFracContextsProbl0;
+	static ArrayList<HashMap<String, Double>> multiFracContextsProbl1;
+
+	static double pl0 = 0;
+	static double pl1 = 0;
+	
 	@SuppressWarnings("unchecked")
 	public ApplyEMSeed(String folder) {
 		this.folder = folder;
@@ -65,12 +71,19 @@ public class ApplyEMSeed {
 			semanticP = (Parameter) modelInput.readObject();
 			gramP = (Parameter) modelInput.readObject();
 			cilinP = (Parameter) modelInput.readObject();
-			fracContextCount = (HashMap<String, Double>) modelInput
-					.readObject();
-			contextPrior = (HashMap<String, Double>) modelInput.readObject();
+//			fracContextCount = (HashMap<String, Double>) modelInput
+//					.readObject();
+//			contextPrior = (HashMap<String, Double>) modelInput.readObject();
 
-			Context.ss = (HashSet<String>) modelInput.readObject();
-			Context.vs = (HashSet<String>) modelInput.readObject();
+			multiFracContextsProbl0 = (ArrayList<HashMap<String, Double>>) modelInput
+					.readObject();
+			multiFracContextsProbl1 = (ArrayList<HashMap<String, Double>>) modelInput
+					.readObject();
+			pl0 = (Double) modelInput.readObject();
+			pl1 = (Double) modelInput.readObject();
+			
+//			Context.ss = (HashSet<String>) modelInput.readObject();
+//			Context.vs = (HashSet<String>) modelInput.readObject();
 			// Context.svoStat = (SVOStat)modelInput.readObject();
 			modelInput.close();
 
@@ -369,15 +382,33 @@ public class ApplyEMSeed {
 				double p_sem = semanticP.getVal(entry.sem,
 						EMUtil.getSemantic(anaphor));
 
-				double p_context = 0.0000000000000000000000000000000000000000000001;
-				if (fracContextCount.containsKey(context.toString())) {
-					p_context = (1.0 * EMUtil.alpha + fracContextCount
-							.get(context.toString()))
-							/ (2.0 * EMUtil.alpha + contextPrior.get(context
-									.toString()));
-				} else {
-					p_context = 1.0 / 2;
+//				double p_context = 0.0000000000000000000000000000000000000000000001;
+//				if (fracContextCount.containsKey(context.toString())) {
+//					p_context = (1.0 * EMUtil.alpha + fracContextCount
+//							.get(context.toString()))
+//							/ (2.0 * EMUtil.alpha + contextPrior.get(context
+//									.toString()));
+//				} else {
+//					p_context = 1.0 / 2;
+//				}
+				
+				double p_context_l1 = pl1;
+				double p_context_l0 = pl0;
+				for (int g = 0; g < Context.getSubContext().size(); g++) {
+					String key = context.getKey(g);
+					if (multiFracContextsProbl1.get(g).containsKey(key)) {
+						p_context_l1 *= multiFracContextsProbl1.get(g).get(key);
+					} else {
+						p_context_l1 *= Context.normConstant.get(g);
+					}
+
+					if (multiFracContextsProbl0.get(g).containsKey(key)) {
+						p_context_l0 *= multiFracContextsProbl0.get(g).get(key);
+					} else {
+						p_context_l0 *= Context.normConstant.get(g);
+					}
 				}
+				double p_context = p_context_l1 / (p_context_l1 + p_context_l0);
 
 				double p2nd = p_context * entry.p_c;
 				p2nd *= 1 * p_sem;
